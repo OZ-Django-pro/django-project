@@ -23,4 +23,4 @@
 
 # ERD
 
-![스크린샷 2025-04-01 17 04 42](https://github.com/user-attachments/assets/04fa5cac-944e-4a6b-8bb6-8de19e7decf4)
+
