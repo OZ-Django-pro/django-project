@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'user.User'  # 'app_name.model_name'
+AUTH_USER_MODEL = 'users.User'  # 'app_name.model_name'
 
 # Application definition
 
@@ -39,10 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'account',
-    'user',
-    'constants',
-    
+    'rest_framework',
+
+    'users',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'config.urls.urls_dev'
 
 TEMPLATES = [
     {
@@ -82,9 +82,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'account',
-        'USER': 'jisoo',
-        'PASSWORD': '1234',
+        'NAME': 'project1',
+        'USER': 'hy',
+        'PASSWORD': '4662',
         'HOST': 'localhost',
         'PORT': '5432',
     }
