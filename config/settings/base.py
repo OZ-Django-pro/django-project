@@ -39,10 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'accounts',
+
+    'rest_framework',
+    'rest_framework_simplejwt',
+
     'users',
-    'constants',
-    
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'config.urls.urls_dev'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 TEMPLATES = [
     {
@@ -82,9 +90,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'account',
-        'USER': 'jisoo',
-        'PASSWORD': '1234',
+        'NAME': 'project1',
+        'USER': 'hy',
+        'PASSWORD': '4662',
         'HOST': 'localhost',
         'PORT': '5432',
     }

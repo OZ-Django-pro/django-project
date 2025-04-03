@@ -1,5 +1,14 @@
 from rest_framework import serializers
+
 from accounts.models import Transaction_History, Accounts
+from .models import Accounts
+
+# 계좌 serializer
+class AccountsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accounts
+        fields = '__all__'
+        read_only_fields = ['account_id', 'created_at', 'updated_at'] # 생성 후 수정이 불가능한 필드
 
 
 
@@ -58,3 +67,4 @@ class TransactionDetailSerializer(serializers.ModelSerializer):
     # 출금 거래 일경우 출금 금액 반환
     def get_withdrawal_amount(self, obj):
         return obj.transaction_amount if obj.transaction_type =="출금" else None
+
