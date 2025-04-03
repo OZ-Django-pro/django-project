@@ -9,8 +9,14 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+# 공통으로 사용할 환경변수
+# settings/base.py -> settings/local.py : 로컬환경
+# settings/base.py -> settings/prod.py : 프로덕션 환경
 
+from datetime import timedelta
 from pathlib import Path
+
+from django.conf.global_settings import AUTH_USER_MODEL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,9 +33,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
 AUTH_USER_MODEL = 'users.User'  # 'app_name.model_name'
 
 # Application definition
+
+SIMPLE_JWT ={
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7), #JWT 토큰만료 시간 7일
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,12 +50,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-
-    'rest_framework',
-    'rest_framework_simplejwt',
-
     'users',
     'accounts',
+
+    #nami 추가 app
+    'users.apps.UserConfig',  # users앱 등록
+    'rest_framework', #rest-framwork 추가
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist', #로그아웃 Refresh Token기능
+    'drf_yasg',
+
 ]
 
 MIDDLEWARE = [
