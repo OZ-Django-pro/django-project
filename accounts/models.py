@@ -8,7 +8,7 @@ from users.models import User
 
 class Accounts(models.Model):
     account_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=20, unique=True)
     bank_code = models.CharField(max_length=20, choices=BANK_CODES)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE)

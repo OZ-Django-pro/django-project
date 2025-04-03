@@ -41,7 +41,7 @@ urlpatterns = [
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 # POST /users/ -> 회원가입
-    path("", apis.UserSignUpAPIView.as_view(), name="user_sign_up"),
+    path("signup", apis.UserSignUpAPIView.as_view(), name="user_sign_up"),
     # POST /users/login -> 로그인
     path('login/', apis.LoginView.as_view(), name='user_login'),
     path('logout/', apis.LogoutView.as_view(), name='user_logout'),

@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'accounts',
 
     #nami 추가 app
-    'users.apps.UserConfig',  # users앱 등록
+    
     'rest_framework', #rest-framwork 추가
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist', #로그아웃 Refresh Token기능
