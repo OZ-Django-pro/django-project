@@ -17,12 +17,10 @@ Including another URLconf
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.urls import path
+from django.urls import path, include
 from django.contrib import admin
 
 from users import apis
-
-
 
 
 
@@ -39,11 +37,6 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-# POST /users/ -> 회원가입
-    path("", apis.UserSignUpAPIView.as_view(), name="user_sign_up"),
-    # POST /users/login -> 로그인
-    path('login/', apis.LoginView.as_view(), name='user_login'),
-    path('logout/', apis.LogoutView.as_view(), name='user_logout'),
-    path('me/', apis.UserMeAPIView.as_view(), name="user_me"),
-
+    # users/urls.py 유저관련 URL 모음
+    path('api/users/', include('users.urls')),
 ]

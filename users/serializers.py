@@ -49,7 +49,7 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('아이디 또는 비밀번호가 다릅니다.')
         raise serializers.ValidationError('아이디와 비밀번호를 모두 입력해주세요.')
 
-# Logout 기능
+# Logout 기능(추가됨)
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(help_text="Refresh 토큰")
 
