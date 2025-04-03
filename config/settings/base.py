@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'user.User'  # 'app_name.model_name'
+AUTH_USER_MODEL = 'users.User'  # 'app_name.model_name'
 
 # Application definition
 
@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'account',
-    'user',
+    'accounts',
+    'users',
     'constants',
     
 ]

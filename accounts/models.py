@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from constants import BANK_CODES, ACCOUNT_TYPE, TRANSACTION_TYPE, TRANSACTION_METHOD
-from user.models import User
+from users.models import User
 
 class Accounts(models.Model):
     account_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
