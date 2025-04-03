@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # 회원가입 기능(ModelSerializer)
-class UserSignUpSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email", "password"]
@@ -21,11 +21,7 @@ class UserSignUpSerializer(serializers.ModelSerializer):
         )
         return user
 
-# 출력,User id, email 등 조회
-class UserMeReadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = "__all__"
+
 
 # Login 기능
 class LoginSerializer(serializers.Serializer):
@@ -53,9 +49,28 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('아이디 또는 비밀번호가 다릅니다.')
         raise serializers.ValidationError('아이디와 비밀번호를 모두 입력해주세요.')
 
+# Logout 기능
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(help_text="Refresh 토큰")
+
+    def validate_refresh(self, value):
+        try:
+            token = RefreshToken(value)
+            token.blacklist()
+            return value
+        except Exception:
+            raise serializers.ValidationError("유효하지 않은 토큰입니다.")
+
+
+
+# Profile(출력,User id, email 등) 조회
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
 
 # User 정보 수정할 수 있는 기능
-class UserMeUpdateSerializer(serializers.ModelSerializer):
+class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "password"]

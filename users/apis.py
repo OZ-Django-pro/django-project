@@ -2,63 +2,68 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from users.models import User
-from users.serializers import UserSignUpSerializer, UserMeReadSerializer, UserMeUpdateSerializer, LoginSerializer
+from users.serializers import (RegisterSerializer, ProfileSerializer,
+                               ProfileUpdateSerializer, LoginSerializer, LogoutSerializer)
 
 #로그아웃 import
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+# 회원탈퇴 import
+from rest_framework.generics import DestroyAPIView
 
 
 #회원가입
-class UserSignUpAPIView(CreateAPIView):
+class RegisterAPIView(CreateAPIView):
     queryset = User.objects.all() # Model
-    serializer_class = UserSignUpSerializer # Serializer
+    serializer_class = RegisterSerializer # Serializer
 
 # 로그인
-class LoginView(APIView):
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            # 시리얼라이저에서 검증된 데이터 가져오기
-            validated_data = serializer.validated_data
+class LoginView(CreateAPIView):
+    serializer_class = LoginSerializer
 
-            # Response 객체 생성
-            response = Response(
-                {
-                    "message": "로그인 성공",
-                    "user": validated_data['user'].username
-                },
-                status=status.HTTP_200_OK
-            )
-            # 쿠키에 토큰 저장
-            response.set_cookie(
-                'access',
-                validated_data['access'],
-                httponly=True,
-                secure=True,
-                samesite='Lax',
-                max_age=60 * 60 * 24  # 1일
-            )
+    def create(self, request, *args, **kwargs):
+        # serializer 유효성 검사는 자동으로 처리됨
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializer)
 
-            response.set_cookie(
-                'refresh',
-                validated_data['refresh'],
-                httponly=True,
-                secure=True,
-                samesite='Lax',
-                max_age=60 * 60 * 24 * 7  # 7일
-            )
+    def perform_create(self, serializer):
+        validated_data = serializer.validated_data
+        response = Response(
+            {
+                "message": "로그인 성공",
+                "user": validated_data['user'].username
+            },
+            status=status.HTTP_200_OK
+        )
 
-            return response
+        # 쿠키 설정
+        response.set_cookie(
+            'access',
+            validated_data['access'],
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=60 * 60 * 24
+        )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response.set_cookie(
+            'refresh',
+            validated_data['refresh'],
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=60 * 60 * 24 * 7
+        )
+
+        return response
 
 # user프로필 표시, 사용자 정보확인, 로그인 상태확인
-class UserMeAPIView(RetrieveAPIView):
+class ProfileAPIView(RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = UserMeReadSerializer
+    serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated] # 인증된 사용자만 접근
     authentication_classes = [JWTAuthentication] # JWT 인증
     # Retrieve = get_object -> serializer로 반환
@@ -67,29 +72,54 @@ class UserMeAPIView(RetrieveAPIView):
 
 
 #회원 프로필 조회, 수정
-class UserMeUpdateAPIView(RetrieveAPIView): # Retrieve 기능에 def get,put,patch 기능 포함되어있음
+class ProfileUpdateAPIView(RetrieveAPIView): # Retrieve 기능에 def get,put,patch 기능 포함되어있음
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return UserMeReadSerializer
+            return ProfileSerializer
         elif self.request.method == 'PATCH':
-            return UserMeUpdateSerializer # 모델 입력해줘야 함
+            return ProfileUpdateSerializer # 모델 입력해줘야 함
 
 # Logout 기능
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated] # 인증된 사용자만 이 뷰에 접근가능
+class LogoutView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LogoutSerializer
 
-    #POST 메서드
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh"] # 리프레시 토큰 추출
-            token = RefreshToken(refresh_token)     # 토큰생성
-            token.blacklist()                       # 블랙리스트에 토큰 추가
-            return Response(                        # 로그아웃 성공시 응답반환
-                {"message": "로그아웃 되었습니다."},
-                status=status.HTTP_205_RESET_CONTENT
-            )
-        except Exception as e:                      # 에외처리
-            return Response(
-                {"error": "잘못된 접근입니다."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # 쿠키 삭제를 위한 응답 생성
+        response = Response(
+            {"message": "로그아웃 되었습니다."},
+            status=status.HTTP_205_RESET_CONTENT
+        )
+
+        # 쿠키에서 토큰 삭제
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+
+        return response
+
+
+# 회원탈퇴 기능
+class DestroyView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        self.perform_destroy(user)
+
+        # 쿠키에서 토큰 삭제
+        response = Response(
+            {"message": "Deleted successfully 회원탈퇴가 완료되었습니다."},
+            status=status.HTTP_204_NO_CONTENT
+        )
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+
+        return response
