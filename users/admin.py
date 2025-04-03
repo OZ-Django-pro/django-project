@@ -34,9 +34,3 @@ class CustomUserAdmin(UserAdmin):
 
     readonly_fields = ['is_admin']
 
-@admin.register(SocialAccount)
-class SocialAccountAdmin(admin.ModelAdmin):
-    list_display = ['user', 'provider', 'created_at']
-    list_filter = ['provider']
-    search_fields = ['user__email']
-    raw_id_fields = ['user']
