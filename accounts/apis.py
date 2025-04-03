@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions
-from .models import Accounts, Transaction_History
+from .models import Accounts
 from .serializers import AccountsSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
