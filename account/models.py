@@ -1,11 +1,11 @@
 from django.db import models
 import uuid
 from constants import BANK_CODES, ACCOUNT_TYPE, TRANSACTION_TYPE, TRANSACTION_METHOD
-from user.models import User
+from users.models import users
 
 class Accounts(models.Model):
     account_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=20, unique=True)
     bank_code = models.CharField(max_length=20, choices=BANK_CODES)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE)
