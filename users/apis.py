@@ -5,6 +5,7 @@ from users.models import User
 from users.serializers import (RegisterSerializer, ProfileSerializer,
                                ProfileUpdateSerializer, LoginSerializer, LogoutSerializer)
 
+
 #로그아웃 import
 from rest_framework import status
 from rest_framework.response import Response

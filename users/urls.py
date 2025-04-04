@@ -8,7 +8,7 @@ urlpatterns = [
     path('signup/', apis.RegisterAPIView.as_view(), name='signup'),
     path('login/', apis.LoginView.as_view(), name='login'),
     path('logout/', apis.LogoutView.as_view(), name='logout'),
-    path('me/', apis.ProfileAPIView.as_view(), name='profile'),
-    path('me/update/', apis.ProfileUpdateAPIView.as_view(), name='profile_update'),
+    path('profile/', apis.ProfileAPIView.as_view(), name='profile'),
+    path('profile/update/', apis.ProfileUpdateAPIView.as_view(), name='profile_update'),
     path('delete/', apis.DestroyView.as_view(), name='user_delete'),
 ]
