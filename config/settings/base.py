@@ -35,9 +35,19 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "users.user" #User 모델 변경
 # Application definition
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}
 
 SIMPLE_JWT ={
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7), #JWT 토큰만료 시간 7일
+    "USER_ID_FIELD": "user_id",  # <- 반드시 추가!
+    "USER_ID_CLAIM": "user_id",  # <- 이걸 추가해야 JWT payload에도 user_id가 들어감!
 }
 
 INSTALLED_APPS = [

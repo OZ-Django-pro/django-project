@@ -10,8 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password"]
-        read_only_fields = ["id"] # id는 생성 후, 읽는 기능만 가능
+        fields = ["user_id", "username", "email", "password"] #model.py에 user_id로 설정
+        read_only_fields = ["user_id"] # id는 생성 후, 읽는 기능만 가능
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -25,15 +25,15 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 # Login 기능
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=255)
+    email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
 
-        if username and password:
-            user = authenticate(username=username, password=password)
+        if email and password:
+            user = authenticate(email=email, password=password)
             if user:
                 if not user.is_active:
                     raise serializers.ValidationError('계정이 비활성화되어 있습니다.')
