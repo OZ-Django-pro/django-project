@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +31,13 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'  # 'app_name.model_name'
 
 # Application definition
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'USER_ID_FIELD': 'user_id',
+    'USER_ID_CLAIM': 'user_id',
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,9 +98,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'project1',
-        'USER': 'hy',
-        'PASSWORD': '4662',
+        'NAME': 'account',
+        'USER': 'jisoo',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
