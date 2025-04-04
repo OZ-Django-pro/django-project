@@ -37,19 +37,21 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('api/users/', include('users.urls')),
-    path('api/accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
-
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
+    path('api/users/', include('users.urls')),
+    path('api/accounts/', include('accounts.urls')),
+
+    path("", apis.RegisterAPIView.as_view(), name="user_sign_up"),
+    
 # POST /users/ -> 회원가입
-    path("signup", apis.UserSignUpAPIView.as_view(), name="user_sign_up"),
+    path("signup", apis.RegisterAPIView.as_view(), name="user_sign_up"),
     # POST /users/login -> 로그인
     path('login/', apis.LoginView.as_view(), name='user_login'),
     path('logout/', apis.LogoutView.as_view(), name='user_logout'),
-    path('me/', apis.UserMeAPIView.as_view(), name="user_me"),
+    # path('me/', apis.UserMeAPIView.as_view(), name="user_me"),, (UserMeAPIView 못찾겠어요)
     
     # users/urls.py 유저관련 URL 모음
-    path('api/users/', include('users.urls')),
+    # path('api/users/', include('users.urls')),(include users 두번 등록 오류수정)
     ]
