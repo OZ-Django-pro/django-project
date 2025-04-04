@@ -46,10 +46,10 @@ urlpatterns = [
     path("", apis.RegisterAPIView.as_view(), name="user_sign_up"),
     
 # POST /users/ -> 회원가입
-    path("signup", apis.RegisterAPIView.as_view(), name="user_sign_up"),
-    # POST /users/login -> 로그인
-    path('login/', apis.LoginView.as_view(), name='user_login'),
-    path('logout/', apis.LogoutView.as_view(), name='user_logout'),
+    # path("signup", apis.RegisterAPIView.as_view(), name="user_sign_up"),
+    # # POST /users/login -> 로그인
+    # path('login/', apis.LoginView.as_view(), name='user_login'),
+    # path('logout/', apis.LogoutView.as_view(), name='user_logout'),
     # path('me/', apis.UserMeAPIView.as_view(), name="user_me"),, (UserMeAPIView 못찾겠어요)
     
     # users/urls.py 유저관련 URL 모음
