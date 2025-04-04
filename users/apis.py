@@ -34,7 +34,9 @@ class LoginView(CreateAPIView):
         response = Response(
             {
                 "message": "로그인 성공",
-                "user": validated_data['user'].username
+                "user": validated_data['user'].username,
+                "access": validated_data['access'],  # Access 토큰 추가
+                "refresh": validated_data['refresh'],  # Refresh 토큰 추가
             },
             status=status.HTTP_200_OK
         )

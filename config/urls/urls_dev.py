@@ -25,6 +25,8 @@ from users import apis
 
 
 
+
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Mini Project API",
@@ -41,9 +43,7 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('api/users/', include('users.urls')),
-    path('api/accounts/', include('accounts.urls')),
-
-    path("", apis.RegisterAPIView.as_view(), name="user_sign_up"),
+    path('api/', include('accounts.urls')),  # accounts.urls가 /api/ 아래에 들어가도록 설정
     
 # POST /users/ -> 회원가입
     # path("signup", apis.RegisterAPIView.as_view(), name="user_sign_up"),

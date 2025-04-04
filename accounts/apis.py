@@ -1,80 +1,78 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+
 from .models import Accounts
-from .serializers import AccountsSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.db import transaction
 from .models import Accounts, Transaction_History
-from .serializers import TransactionSerializer, TransactionDetailSerializer
+from .serializers import TransactionSerializer, TransactionDetailSerializer, AccountDetailSerializer, AccountsSerializer
 
-# 계좌 생성
-class AccountsCreateView(generics.CreateAPIView):
-    queryset = Accounts.objects.all()  # 모든 계좌 데이터를 가져옴
-    serializer_class = AccountsSerializer  # 계좌 데이터를 json으로 변환
-    authentication_classes = [JWTAuthentication]  # jwt로 유저 인증 (로그인 확인)
-    permission_classes = [permissions.IsAuthenticated]  # 로그인한 유저만 접근 가능
+import logging
+from rest_framework import serializers
 
-    def perform_create(self, serializer):
-        # 계좌 생성 시 현재 로그인한 유저를 계좌에 연결
-        serializer.save(user_id=self.request.user)
-        # 계좌 생성 시 메시지 출력
-        print(f"{Accounts.account_number} 계좌가 생성되었습니다.")
 
-# 계좌 조회
-class AccountsListView(generics.ListAPIView):
-    serializer_class = AccountsSerializer  # 계좌 데이터를 json으로 변환
-    authentication_classes = [JWTAuthentication]  # jwt로 유저 인증 (로그인 확인)
-    permission_classes = [permissions.IsAuthenticated]  # 로그인한 유저만 접근 가능
+# 계좌 생성 및 조회
+class AccountListCreateView(generics.ListCreateAPIView):
+    serializer_class = AccountsSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # 현재 로그인한 유저의 계좌만 조회
+        # 현재 로그인한 유저가 생성한 계좌만 조회 가능
         return Accounts.objects.filter(user_id=self.request.user)
 
+    def perform_create(self, serializer):
+        # 계좌 생성 시, 로그인한 유저를 자동 할당
+        serializer.save(user_id=self.request.user)
+        print(f"{serializer.instance.account_number} 계좌가 생성되었습니다.")
+
 # 계좌 삭제
-class AccountsDeleteView(generics.DestroyAPIView):
-    queryset = Accounts.objects.all()  # 모든 계좌 데이터를 가져옴
-    serializer_class = AccountsSerializer  # 계좌 데이터를 json으로 변환하는 도구
-    authentication_classes = [JWTAuthentication]  # jwt로 유저 인증 (로그인 확인)
-    permission_classes = [permissions.IsAuthenticated]  # 로그인한 유저만 접근 가능
+class AccountDetailView(generics.DestroyAPIView):
+    queryset = Accounts.objects.all()
+    serializer_class = AccountDetailSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
-    def perform_destroy(self, instance):
-        # 계좌 삭제 메시지 출력
-        print(f"{instance.account_number} 계좌가 삭제되었습니다.")
-        # 실제로 계좌 삭제
-        instance.delete()
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        account_number = instance.account_number
+        self.perform_destroy(instance)
 
-#거래 생성
-class TransactionCreateView(ListCreateAPIView): #class ListCreateAPIView(mixins.ListModelMixin,
-                                                #mixins.CreateModelMixin,
-                                                #GenericAPIView):
-    """
-    거래 생성 API (GET, POST 지원)
-    - GET: 거래 내역 목록 조회
-    - POST: 새로운 거래 생성
-    """
-    queryset = Transaction_History.objects.all()
+        return Response(
+            {"message": f"계좌 {account_number}가 삭제되었습니다."},
+            status=status.HTTP_200_OK
+        )
+
+class TransactionCreateListView(generics.ListCreateAPIView):
+    
     serializer_class = TransactionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # 현재 로그인한 사용자의 계좌와 관련된 거래 내역만 반환
+        user_id = self.request.user.id
+        accounts = Accounts.objects.filter(user_id=user_id)
+        return Transaction_History.objects.filter(account_id__in=[account.account_id for account in accounts])
 
     def perform_create(self, serializer):
-        """
-        거래 생성 시 계좌 잔액을 업데이트
-        :param serializer: 거래 생성 시 사용되는 serializer
-        """
         with transaction.atomic():
-            # 거래 생성 시 사용할 계좌와 거래 정보를 가져옵니다.
-            account = serializer.validated_data["account"]
+            account_id = serializer.validated_data["account_id"]
             transaction_type = serializer.validated_data["transaction_type"]
             transaction_amount = serializer.validated_data["transaction_amount"]
 
+            # 계좌 정보를 가져옵니다.
+            account = account_id
+
             # 출금 거래 시 잔액이 부족한 경우 에러 발생
-            if transaction_type == "출금" and account.balance < transaction_amount:
-                raise ValidationError({"error": "잔액이 부족합니다."})
+            if transaction_type == "WITHDRAW" and account.balance < transaction_amount:
+                raise serializers.ValidationError({"error": "잔액이 부족합니다."})
 
             # 거래 유형에 따라 계좌 잔액을 업데이트합니다.
             new_balance = (
-                account.balance + transaction_amount if transaction_type == "입금"
+                account.balance + transaction_amount if transaction_type == "DEPOSIT"
                 else account.balance - transaction_amount
             )
 
@@ -85,15 +83,17 @@ class TransactionCreateView(ListCreateAPIView): #class ListCreateAPIView(mixins.
             # 거래 내역을 생성하고 balance_after 필드를 업데이트합니다.
             serializer.save(balance_after=new_balance)
 
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 #거래 내역 조회
+    
+    # 거래 내역 조회, 수정, 삭제 API (GET, PUT, PATCH, DELETE 지원)
+    # - PUT: 전체 거래 내여 조회
+    # - GET: 특정 거래 내역 조회
+    # - PATCH: 거래 내역 수정
+    # - DELETE: 거래 내역 삭제
+    
 class TransactionDetailView(RetrieveUpdateDestroyAPIView):
-    """
-    거래 내역 조회, 수정, 삭제 API (GET, PUT, PATCH, DELETE 지원)
-    - PUT: 전체 거래 내여 조회
-    - GET: 특정 거래 내역 조회
-    - PATCH: 거래 내역 수정
-    - DELETE: 거래 내역 삭제
-    """
     queryset = Transaction_History.objects.all()
     serializer_class = TransactionDetailSerializer
 

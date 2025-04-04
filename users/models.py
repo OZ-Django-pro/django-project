@@ -3,6 +3,9 @@ from django.db import models
 import uuid
 
 class User(AbstractUser):
+    @property
+    def id(self):
+        return self.user_id
     # 커스텀 필드
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=50, default="Unknown")
@@ -21,4 +24,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email  # 객체를 문자열로 표현할 때 이메일 반환
-

@@ -47,31 +47,6 @@ class LoginSerializer(serializers.Serializer):
                 }
             raise serializers.ValidationError('아이디 또는 비밀번호가 다릅니다.')
         raise serializers.ValidationError('아이디와 비밀번호를 모두 입력해주세요.')
-    
-class LoginSerializer(serializers.Serializer):
-    eamil = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=128, write_only=True)
-
-    def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-
-        if email and password:
-            user = authenticate(email=email, password=password)
-            if user:
-                if not user.is_active:
-                    raise serializers.ValidationError('계정이 비활성화되어 있습니다.')
-
-                # JWT 토큰 생성
-                refresh = RefreshToken.for_user(user)
-
-                return {
-                    'user': user,
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                }
-            raise serializers.ValidationError('아이디 또는 비밀번호가 다릅니다.')
-        raise serializers.ValidationError('아이디와 비밀번호를 모두 입력해주세요.')
 
 # Logout 기능(추가됨)
 class LogoutSerializer(serializers.Serializer):

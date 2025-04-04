@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
     'users',
     'accounts',
+    
 
     #nami 추가 app
     
