@@ -88,7 +88,7 @@ class TransactionCreateListView(generics.ListCreateAPIView):
 #거래 내역 조회
     
     # 거래 내역 조회, 수정, 삭제 API (GET, PUT, PATCH, DELETE 지원)
-    # - PUT: 전체 거래 내여 조회
+    # 
     # - GET: 특정 거래 내역 조회
     # - PATCH: 거래 내역 수정
     # - DELETE: 거래 내역 삭제
