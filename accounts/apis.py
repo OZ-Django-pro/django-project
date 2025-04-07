@@ -96,57 +96,38 @@ class TransactionCreateListView(generics.ListCreateAPIView):
 class TransactionDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Transaction_History.objects.all()
     serializer_class = TransactionDetailSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_update(self, serializer):
         """
         거래 수정 시 계좌 잔액 재계산
-        :param serializer: 거래 수정 시 사용되는 serializer
+        PATCH 요청으로 수정된 거래 금액을 반영하여 계좌 잔액 업데이트
         """
         with transaction.atomic():
-            # 수정할 거래 내역을 가져옵니다.
             transaction_instance = self.get_object()
-            account = transaction_instance.account
+            account = transaction_instance.account_id
+
             old_amount = transaction_instance.transaction_amount
             new_amount = serializer.validated_data.get("transaction_amount", old_amount)
 
-            # 거래 유형에 따라 계좌 잔액을 업데이트합니다.
-            if transaction_instance.transaction_type == "출금":
-                account.balance += old_amount
-                account.balance -= new_amount
+            if transaction_instance.transaction_type == "WITHDRAW":
+                account.balance += old_amount  # 기존 금액 복구
+                account.balance -= new_amount  # 새로운 금액 차감
             else:
-                account.balance -= old_amount
-                account.balance += new_amount
+                account.balance -= old_amount  # 기존 금액 차감
+                account.balance += new_amount  # 새로운 금액 추가
 
-            # 잔액이 부족한 경우 에러 발생
             if account.balance < 0:
                 raise ValidationError({"error": "잔액이 부족합니다."})
 
-            # 계좌 잔액을 업데이트하고 저장합니다.
             account.save()
-            # 거래 내역을 업데이트하고 balance_after 필드를 업데이트합니다.
             serializer.save(balance_after=account.balance)
 
     def perform_destroy(self, instance):
         """
-        거래 삭제 시 계좌 잔액 되돌리기
-        
-        :param instance: 삭제할 거래 내역 인스턴스
+        거래 삭제 시 거래 내역만 삭제하고 잔액은 유지
+        DELETE 요청에서는 계좌 잔액은 변경하지 않음
         """
         with transaction.atomic():
-            # 삭제할 거래 내역의 계좌를 가져옵니다.
-            account = instance.account
-
-            # 거래 유형에 따라 계좌 잔액을 되돌립니다.
-            if instance.transaction_type == "출금":
-                account.balance += instance.transaction_amount
-            else:
-                account.balance -= instance.transaction_amount
-
-            # 잔액이 부족한 경우 에러 발생
-            if account.balance < 0:
-                raise ValidationError({"error": "잔액이 부족합니다."})
-
-            # 계좌 잔액을 업데이트하고 저장합니다.
-            account.save()
-            # 거래 내역을 삭제합니다.
             instance.delete()
