@@ -1,0 +1,126 @@
+# ========================================
+# OS / Editor
+# ========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+.idea/
+.vscode/
+*.swp
+
+# ========================================
+# Python / Django
+# ========================================
+*.py[cod]
+__pycache__/
+*.pyo
+*.pyd
+*$py.class
+*.so
+
+# Django-specific
+*.log
+*.pot
+*.mo
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+media/
+staticfiles/
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.tox/
+.nox/
+.pytest_cache/
+.hypothesis/
+
+# ========================================
+# Jupyter / IPython
+# ========================================
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# ========================================
+# Virtual Environments
+# ========================================
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ========================================
+# Poetry
+# ========================================
+# Poetry 가상환경 (in-project)
+.venv/
+
+# Poetry 설정 (공유하지 않음)
+poetry.toml
+
+# PEP 582 캐시
+__pypackages__/
+
+# ========================================
+# Packaging / Build
+# ========================================
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.Python
+
+# ========================================
+# Others
+# ========================================
+celerybeat-schedule
+celerybeat.pid
+
+.pybuilder/
+target/
+docs/_build/
+.site
+
+# Mypy / Pyre / Pytype / Ruff / LSP
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+pyrightconfig.json
