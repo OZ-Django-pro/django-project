@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "django-project"
+version = "0.1.0"
+description = ""
+authors = ["kimjisooooo <9729935@naver.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+django = ">=5.1.7, <6.0.0"
+djangorestframework = ">=3.15.2, <4.0.0"
+psycopg2-binary = ">=2.9.10,<3.0.0"
+psycopg2 = "^2.9.10"
+djangorestframework-simplejwt = "^5.5.0"
+uritemplate = "^4.1.1"
+django-extensions = "^3.2.3"
+
+
+[tool.poetry.group.dev.dependencies]
+drf-yasg = "^1.21.10"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
